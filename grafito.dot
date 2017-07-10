@@ -5,8 +5,26 @@ B
 C
 D
 E
+F
+G
+H
+J
+K
+L
+M
+N
+O
 A -> B
 B -> C
-C -> D
+B -> D
 D -> E
+E -> F
+C -> G
+G -> H
+H -> J
+J -> K
+K -> L
+L -> M
+M -> N
+K -> O
 }

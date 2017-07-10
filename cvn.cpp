@@ -210,10 +210,10 @@ public:
 
    Node* find(N x)
    {
-   	cont=0;
+    cont=0;
         for(int i=0; i<l.size();i++)
         {
-        	
+          
             if(l[i]->m_data == x) return l[i];
             cont++;
         }
@@ -232,7 +232,7 @@ public:
        if(!find(x))return 0;
       // l.remove(x);
        typename vector<Node*> ::iterator it = l.begin();
-		l.erase(it+cont);
+    l.erase(it+cont);
        return 1;
    }
 
@@ -361,11 +361,11 @@ public:
 
   void set_branch(string b)
   {
-  	 branch=b;
+     branch=b;
   }
    void set_user(string b)
   {
-  	 user=b;
+     user=b;
   }
 
   N m_data;//
@@ -405,21 +405,21 @@ template<class G>
 class c_Branch
 {
 public:
-	
- 	typedef typename G::Node Node;
-	string name;
-	Node* origen;//de donde sale
-	Node* fin;//el nodo actal de esa branch
-	c_Branch (string n,Node* o,Node* f)	{
-		 name=n;
-		 origen=o;
-		 fin=f;
-	}
+  
+  typedef typename G::Node Node;
+  string name;
+  Node* origen;//de donde sale
+  Node* fin;//el nodo actal de esa branch
+  c_Branch (string n,Node* o,Node* f) {
+     name=n;
+     origen=o;
+     fin=f;
+  }
 
-	void set_f(Node* f)
-	{
-		fin=f;
-	}
+  void set_f(Node* f)
+  {
+    fin=f;
+  }
 };
 
 struct G
@@ -498,7 +498,7 @@ public:
    //añadir una branch en el estado n_branch
    void add_branch(string branch,N n_branch)//como se llamara y en que estado
    {
-   	//solo bsca s exste en nodo para crear na branch
+    //solo bsca s exste en nodo para crear na branch
        Node* p =ht->find(n_branch);
        cout<<n_branch<<endl;
        if (!p) return;//si no hay branch
@@ -542,7 +542,42 @@ public:
 
     current_node = temp;
 
-   	(m_branch[cont_b])->set_f(current_node);
+    (m_branch[cont_b])->set_f(current_node);
+   cont++;
+
+
+
+    io_mutex.unlock();
+
+    imprimir();
+     return 1;
+
+
+   }
+
+
+
+//se va a insertar el nombre del file
+   bool insert_node_p(Node* x)
+   {
+
+       io_mutex.lock();
+     Node* temp=x;
+     temp->set_branch(current_branch->name);
+     temp->set_user(owner);
+
+
+     m_nodes.push_back(temp);
+   //  cout<<"entra"<<endl;
+    ht->_insert(temp);
+    if (current_node)
+    {
+        insert_edge(cont,current_node->m_data,temp->m_data);
+    }//else{ m_branch.push_back(make_tuple(current_branch,current_node,current_node));}
+
+    current_node = temp;
+
+    (m_branch[cont_b])->set_f(current_node);
    cont++;
 
 
@@ -608,7 +643,7 @@ public:
 
    bool erase_node(N x)
    {
-   	 Node* p =ht->find(x);
+     Node* p =ht->find(x);
      //  cout<<n_branch<<endl;
        if (!p) return false;//si no se enconto el nodo a borrar
        p->estado=false;
@@ -629,11 +664,19 @@ public:
              delete borrar;
            }
        }*/
+
+    imprimir();
      return 1;
 
    }
    bool restore(N x)
    {
+     Node* p =ht->find(x);
+     //  cout<<n_branch<<endl;
+       if (!p) return false;//si no se enconto el nodo a borrar
+       p->estado=true;
+    //   ht->remove(x);//borrar la cola
+       return true;
 
    }
    E conexion_nodos(N a,N b)
@@ -648,6 +691,8 @@ public:
 
          }
 
+
+    imprimir();
        return 0;
 
      }
@@ -662,7 +707,7 @@ public:
          }
        cout<<endl;
 
-	fstream grafito;
+  fstream grafito;
     grafito.open("grafito.dot",fstream::out | fstream::binary);
     if (not grafito.is_open()) return; ///no se pudo abrir el archivo, por alguna razon
     grafito << "# Printing printPersistence" << endl;
@@ -739,7 +784,7 @@ system(("dot -Tpng grafito.dot -o "+to_string(i)+".png").c_str());
    Grafo clonar_grafo()
    {
      Grafo m_graf(m_nodes.size(),owner,file);
-     for(int i=0;i<m_nodes.size();i++)
+     for(int i=0;i<m_nodes.size() && m_nodes[i]->branch=="master" ;i++)
        {
          m_graf.insert_node(m_nodes[i]->m_data,m_nodes[i]->file);
        }
@@ -765,7 +810,7 @@ system(("dot -Tpng grafito.dot -o "+to_string(i)+".png").c_str());
 
        for(int i=0;i<m_branch.size();i++)
          {
-         //	 m_graf.add_branch((m_branch[i])->name,(m_branch[i])->origen->m_data);
+           m_graf.add_branch((m_branch[i])->name,(m_branch[i])->origen->m_data);
        //    cout<<(m_branch[i])->name<<endl;
          }
        cout<<endl;
@@ -783,9 +828,6 @@ system(("dot -Tpng grafito.dot -o "+to_string(i)+".png").c_str());
 
          }
 
-
-
-
 };
 
 
@@ -800,7 +842,9 @@ public:
     c_File* file;
     int _size;
     string _user;
+    bool clon;
     int num_estado;
+
     c_Persistence(int size,string user,c_File* _file)
     {
         cout<<"Se ha creado un repositorio"<<endl;
@@ -808,9 +852,10 @@ public:
         _size=size;
         _user=user;
         num_estado=0;
+        clon=false;
     }
 
-    bool insert_node(N x,c_File* file)
+    bool insert_node(N x,c_File* filez)
     {
 
 
@@ -822,11 +867,12 @@ public:
 
 
         }
-        else
-        {
+        else  if (clon==false)
+            {
 
             Grafo<N,E> grafo_ant=heads[heads.size()-1].clonar_grafo();
 
+                             
             grafo_ant.insert_node(x,file);
        //     cout<<"-----------"<<endl;
         //    heads[0].ht->imprimir();
@@ -835,38 +881,58 @@ public:
             heads.push_back(grafo_ant);
 
         //     heads[1].ht->imprimir();
+            }else
+            {
 
-        }
+
+              heads[heads.size()-1].insert_node(x,file);
+
+              clon=false;
+            }
+
+        
 
         num_estado++;
     }
 
 
-    bool erase_node(N x)
-    {
-      for(int i=0;i<heads[num_estado].m_nodes.size();i++)
-        {
-          if(heads[num_estado].m_nodes[i]->m_data==x)
-            {
 
-              for(int j=0;j<heads[num_estado].m_nodes[i]->m_edges.size();j++)
-                {
-                  heads[num_estado].erase_edge(heads[num_estado].m_nodes[i]->m_edges[j]->m_data,heads[num_estado].m_nodes[i]->m_edges[j]->m_node[0]->m_data,heads[num_estado].m_nodes[i]->m_edges[j]->m_node[1]->m_data);
-                }
-              heads[num_estado].m_nodes.erase(heads[num_estado].m_nodes.begin()+i);
-
-            }
-        }
-      return 1;
-    }
+   bool erase_node(N x)
+   {
 
 
+        Grafo<N,E> grafo_ant=heads[heads.size()-1].clonar_grafo();
+        heads.push_back(grafo_ant);
+
+        heads[heads.size()-1].erase_node(x);
+
+     return 1;
+
+   }
+   bool restore(N x)
+   {
+
+        Grafo<N,E> grafo_ant=heads[heads.size()-1].clonar_grafo();
+        heads.push_back(grafo_ant);
+
+        heads[heads.size()-1].restore(x);
+
+       return true;
+
+   }
+//al nevo gafoooooooooooooooooo
 
    //añadir una branch en el estado n_branch
    void add_branch(string branch,N n_branch)//como se llamara y en que estado
    {
-   	cout<<"ñoseee"<<endl;
-   	  heads[heads.size()-1].add_branch(branch,n_branch);
+
+        Grafo<N,E> grafo_ant=heads[heads.size()-1].clonar_grafo();
+        heads.push_back(grafo_ant);
+
+
+  //  cout<<"ñoseee"<<endl;
+      heads[heads.size()-1].add_branch(branch,n_branch);
+      clon=true;
    }
    //primero se tene que volver  a la branch para pode nseta
 
@@ -874,14 +940,15 @@ public:
    void cambiar_branch(string branch)
    {
        heads[heads.size()-1].cambiar_branch(branch);
+       cout<<"entatfj}{ñ"<<endl;
    }
 
 
    void imprimir()
    {  
-   	for(int i=0;i<heads.size();i++)
+    for(int i=0;i<heads.size();i++)
         {
-        	heads[i].imprimir();
+          heads[i].imprimir();
         }
     }
 
@@ -907,15 +974,11 @@ int main(int argc, char const *argv[])
 
     //el file lo tendra el grafo y cada vez que se inserte un estado
     //se supone que el ya modifico antes el file que se encuentra en el grafo
-
+/*
 
     c_Persistence<string,int> cversion(10,"user",file);
 
-/*
-    string contenido;
-    string contenido2;
-    int opcion;
-*/
+
 
      cversion.insert_node("A",file);
 
@@ -923,54 +986,64 @@ int main(int argc, char const *argv[])
     cversion.insert_node("C",file);
 
 
-    cversion.add_branch("new","B");
-    cversion.cambiar_branch("new");
+ /*   cversion.add_branch("new","B");
+    cversion.cambiar_branch("new");*/
+         //  cout<<"entatfj}{ñ"<<endl;
+/*
+    cversion.erase_node("C");
+
+    cversion.restore("C");
+
      cversion.insert_node("D",file);
 
     cversion.insert_node("E",file);
-     cversion.imprimir();
+   //  cversion.imprimir();
 
-
-/*
+*/
 
     ////hacer path copy :3
     ///
+    
    Grafo<string,int> grafito(10,"_user",file);
 
     grafito.insert_node("A",file);
 
-   grafito.insert_node("B",file);
+    grafito.insert_node("B",file);
     grafito.insert_node("C",file);
     grafito.add_branch("new","B");
     grafito.cambiar_branch("new");
     grafito.insert_node("D",file);
     grafito.insert_node("E",file);
-    grafito.insert_node("G",file);
-    grafito.cambiar_branch("master");
     grafito.insert_node("F",file);
+    grafito.cambiar_branch("master");
+    grafito.insert_node("G",file);
+    grafito.insert_node("H",file);
+    grafito.insert_node("J",file);
+    grafito.insert_node("K",file);
+    grafito.add_branch("new2","K");
+    grafito.cambiar_branch("new2");
+    grafito.insert_node("L",file);
+    grafito.insert_node("M",file);
+    grafito.insert_node("N",file);
+    grafito.cambiar_branch("master");
+    grafito.insert_node("O",file);
 
-*/
-    ///mostrando
- /*   cversion.heads[3].ht->imprimir();
-    cout<<endl;
 
-    cversion.heads[3].imprimir();*/
-/*
 
-    grafito.ht->imprimir();
+   // grafito.ht->imprimir();
         cout<<endl;
 
         grafito.imprimir();
 
     grafito.erase_node("E");
 
-    grafito.ht->imprimir();
-        cout<<endl;
 
         grafito.imprimir();
 
+        grafito.restore("E");
+                grafito.imprimir();
 
-*/
+
     //for(int i = 0; i < sizeof(user) ; i++)
     //un nodo es un commit, se debe guardar con el usuario y la fecha
 
