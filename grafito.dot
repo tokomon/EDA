@@ -1,0 +1,12 @@
+# Printing printPersistence
+digraph G{ 
+A
+B
+C
+D
+E
+A -> B
+B -> C
+C -> D
+D -> E
+}
