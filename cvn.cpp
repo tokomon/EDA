@@ -273,20 +273,9 @@ public:
     {
 
          m_ht=new List[size];
-    //     cout<<"n "<<size<<endl;
-
-    //    cout<<"nohpi"<<endl;
-      //  m_ht[0].l.push_back("s");
-     //   cout<<"hola "<<m_ht[0].l.size()<<endl;
-
+  
         m_size=size;
-      /*  for(int i=0; i<m_size;i++)
-        {
-            cout<<"nohpi"<<endl;
-
-         // m[i]=nullptr;
-        }
-*/
+    
     }
 
     bool _insert(Node* x)
@@ -549,7 +538,7 @@ public:
 
     io_mutex.unlock();
 
-    imprimir();
+   // imprimir();
      return 1;
 
 
@@ -805,12 +794,13 @@ system(("dot -Tpng grafito.dot -o "+to_string(i)+".png").c_str());
              cout<<endl;
 
 
-               }
+               }   
+
 
 
        for(int i=0;i<m_branch.size();i++)
          {
-           m_graf.add_branch((m_branch[i])->name,(m_branch[i])->origen->m_data);
+    //       m_graf.add_branch((m_branch[i])->name,(m_branch[i])->origen->m_data);
        //    cout<<(m_branch[i])->name<<endl;
          }
        cout<<endl;
@@ -853,9 +843,11 @@ public:
         _user=user;
         num_estado=0;
         clon=false;
+
+
     }
 
-    bool insert_node(N x,c_File* filez)
+    bool insert_node(N x,c_File* file)
     {
 
 
@@ -866,7 +858,24 @@ public:
             heads.push_back(grafito);
 
 
-        }
+        }else
+        {
+           
+
+
+
+            Grafo<N,E> grafo_ant=heads[heads.size()-1].clonar_grafo();
+
+            grafo_ant.insert_node(x,file);
+       //     cout<<"-----------"<<endl;
+        //    heads[0].ht->imprimir();
+
+
+            heads.push_back(grafo_ant);}
+
+        //     heads[1].ht->imprimir();
+
+        /*
         else  if (clon==false)
             {
 
@@ -888,7 +897,7 @@ public:
               heads[heads.size()-1].insert_node(x,file);
 
               clon=false;
-            }
+            }*/
 
         
 
@@ -899,13 +908,10 @@ public:
 
    bool erase_node(N x)
    {
-
-
         Grafo<N,E> grafo_ant=heads[heads.size()-1].clonar_grafo();
         heads.push_back(grafo_ant);
 
         heads[heads.size()-1].erase_node(x);
-
      return 1;
 
    }
@@ -920,7 +926,6 @@ public:
        return true;
 
    }
-//al nevo gafoooooooooooooooooo
 
    //añadir una branch en el estado n_branch
    void add_branch(string branch,N n_branch)//como se llamara y en que estado
@@ -930,7 +935,6 @@ public:
         heads.push_back(grafo_ant);
 
 
-  //  cout<<"ñoseee"<<endl;
       heads[heads.size()-1].add_branch(branch,n_branch);
       clon=true;
    }
@@ -940,7 +944,6 @@ public:
    void cambiar_branch(string branch)
    {
        heads[heads.size()-1].cambiar_branch(branch);
-       cout<<"entatfj}{ñ"<<endl;
    }
 
 
@@ -974,35 +977,37 @@ int main(int argc, char const *argv[])
 
     //el file lo tendra el grafo y cada vez que se inserte un estado
     //se supone que el ya modifico antes el file que se encuentra en el grafo
+
 /*
+////////////////////////////////////////////////////////////////
 
     c_Persistence<string,int> cversion(10,"user",file);
 
 
 
      cversion.insert_node("A",file);
-
      cversion.insert_node("B",file);
     cversion.insert_node("C",file);
+
+
+
+     cversion.insert_node("D",file);
+
+    cversion.insert_node("E",file);
+
+     cversion.imprimir();
 
 
  /*   cversion.add_branch("new","B");
     cversion.cambiar_branch("new");*/
          //  cout<<"entatfj}{ñ"<<endl;
-/*
-    cversion.erase_node("C");
 
-    cversion.restore("C");
+    /*cversion.erase_node("C");
 
-     cversion.insert_node("D",file);
+    cversion.restore("C");*/
 
-    cversion.insert_node("E",file);
-   //  cversion.imprimir();
-
-*/
-
-    ////hacer path copy :3
-    ///
+//    ///
+ 
     
    Grafo<string,int> grafito(10,"_user",file);
 
@@ -1015,6 +1020,7 @@ int main(int argc, char const *argv[])
     grafito.insert_node("D",file);
     grafito.insert_node("E",file);
     grafito.insert_node("F",file);
+
     grafito.cambiar_branch("master");
     grafito.insert_node("G",file);
     grafito.insert_node("H",file);
@@ -1028,23 +1034,21 @@ int main(int argc, char const *argv[])
     grafito.cambiar_branch("master");
     grafito.insert_node("O",file);
 
+    grafito.insert_node("P",file);
+    grafito.add_branch("new3","P");
+    grafito.cambiar_branch("new3");
+    grafito.insert_node("Q",file);
+    grafito.insert_node("S",file);
+    grafito.insert_node("T",file);
 
-
-   // grafito.ht->imprimir();
-        cout<<endl;
-
-        grafito.imprimir();
-
+    grafito.ht->imprimir();
+    grafito.imprimir();
     grafito.erase_node("E");
+    grafito.imprimir();
+    grafito.restore("E");
+    grafito.imprimir();
 
 
-        grafito.imprimir();
-
-        grafito.restore("E");
-                grafito.imprimir();
-
-
-    //for(int i = 0; i < sizeof(user) ; i++)
     //un nodo es un commit, se debe guardar con el usuario y la fecha
 
 
@@ -1053,7 +1057,7 @@ int main(int argc, char const *argv[])
     ///paralelismo
     for (int i =0; i< nt ; i++)
     {
-        th[i]=  thread (&Grafo<string,int>::insert_node,&grafito,user[i]);
+        th[i]=  thread (&Grafo<string,int>::insert_node,&grafito,user[i],file);
     }
 
     for (int i =0; i< nt ; i++)
@@ -1061,21 +1065,6 @@ int main(int argc, char const *argv[])
         th[i].join();
     }
 */
-
-
-
-  // cout<<(grafito.ht->find("A"))->m_data<<endl;
-
-
-
-
-
-
-
-
-
-
-         //   A.Print(A.m_head,&p);
 
 
 

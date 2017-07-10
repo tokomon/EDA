@@ -14,6 +14,10 @@ L
 M
 N
 O
+P
+Q
+S
+T
 A -> B
 B -> C
 B -> D
@@ -27,4 +31,8 @@ K -> L
 L -> M
 M -> N
 K -> O
+O -> P
+P -> Q
+Q -> S
+S -> T
 }
